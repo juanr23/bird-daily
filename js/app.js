@@ -245,6 +245,7 @@ async function fetchBirdSummary(birdIndex) {
     }
 
     const bird = await detailResponse.json();
+    console.log(bird);
     if (birdHasUsefulContent(bird)) {
       return bird;
     }

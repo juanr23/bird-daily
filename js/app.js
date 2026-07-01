@@ -80,7 +80,6 @@ function fixWikimediaImageUrl(url) {
   return url.replace("/400px-", "/250px-");
 }
 
-console.log(bird.image_url);
 
 function getImageCandidates(bird) {
   const candidates = [];

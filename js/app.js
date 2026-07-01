@@ -82,13 +82,8 @@ function getImageCandidates(bird) {
   if (bird.image_path) {
     candidates.push(`${CDN_BASE}/${bird.image_path}`);
   }
-  
-  if (bird.image_url?.trim()) {
-    candidates.push(bird.image_url.trim());
-  }
-  
 
-  return [...new Set(candidates)];
+   return [...new Set(candidates)];
 }
 
 function setBirdImage(bird) {

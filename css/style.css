@@ -191,7 +191,7 @@ h1 {
 .image-wrap {
   position: relative;
   background: linear-gradient(145deg, #d4ebe4, #a8d5c8);
-  min-height: 360px;
+  min-height: auto;
 }
 
 .image-wrap.no-image::after {

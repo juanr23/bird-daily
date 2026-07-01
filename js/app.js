@@ -79,11 +79,11 @@ function getPageAndOffset(birdIndex) {
 function getImageCandidates(bird) {
   const candidates = [];
 
-  if (bird.image_path) {
-    candidates.push(`${CDN_BASE}/${bird.image_path}`);
+  if (bird.image_url?.trim()) {
+    candidates.push(bird.image_url.trim());
   }
 
-   return [...new Set(candidates)];
+  return candidates;
 }
 
 function setBirdImage(bird) {

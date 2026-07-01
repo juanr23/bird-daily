@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Discover a new bird every day — fun facts and beautiful photos from around the world."
+    />
+    <title>Bird of the Day</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=DM+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="sky">
+      <div class="cloud cloud-1"></div>
+      <div class="cloud cloud-2"></div>
+      <div class="cloud cloud-3"></div>
+    </div>
+
+    <header class="header">
+      <div class="logo">
+        <span class="logo-icon" aria-hidden="true">🪶</span>
+        <div>
+          <p class="eyebrow">Daily avian discovery</p>
+          <h1>Bird of the Day</h1>
+        </div>
+      </div>
+      <p class="date" id="today-date"></p>
+    </header>
+
+    <main class="main">
+      <section class="card" id="bird-card" aria-live="polite">
+        <div class="loading" id="loading">
+          <div class="loader-bird" aria-hidden="true">🐦</div>
+          <p>Fetching today's feathered friend…</p>
+        </div>
+
+        <div class="content hidden" id="bird-content">
+          <div class="image-wrap">
+            <img id="bird-image" src="" alt="" />
+            <div class="image-badge" id="conservation-badge"></div>
+          </div>
+
+          <div class="details">
+            <div class="title-block">
+              <h2 id="bird-name"></h2>
+              <p class="scientific" id="bird-scientific"></p>
+              <p class="family" id="bird-family"></p>
+            </div>
+
+            <blockquote class="fun-fact">
+              <span class="fact-label">Today's fun fact</span>
+              <p id="fun-fact"></p>
+            </blockquote>
+
+            <p class="description" id="bird-description"></p>
+
+            <dl class="stats" id="bird-stats"></dl>
+
+            <div class="actions">
+              <button class="btn btn-primary" id="random-btn" type="button">
+                Surprise me with another bird
+              </button>
+              <button class="btn btn-secondary" id="daily-btn" type="button">
+                Back to today's bird
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="error hidden" id="error-state">
+          <p>Couldn't load a bird right now. The flock may be resting.</p>
+          <button class="btn btn-primary" id="retry-btn" type="button">Try again</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>
+        Bird data &amp; images via
+        <a href="https://birdfyi.com" target="_blank" rel="noopener noreferrer">BirdFYI</a>
+        and
+        <a href="https://commons.wikimedia.org" target="_blank" rel="noopener noreferrer"
+          >Wikimedia Commons</a
+        >.
+      </p>
+    </footer>
+
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>

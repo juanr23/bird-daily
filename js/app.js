@@ -76,14 +76,19 @@ function getPageAndOffset(birdIndex) {
   };
 }
 
+function fixWikimediaImageUrl(url) {
+  return url.replace("/400px-", "/250px-");
+}
+
 function getImageCandidates(bird) {
   const candidates = [];
 
   if (bird.image_url?.trim()) {
+    candidates.push(fixWikimediaImageUrl(bird.image_url.trim()));
     candidates.push(bird.image_url.trim());
   }
 
-  return candidates;
+  return [...new Set(candidates)];
 }
 
 function setBirdImage(bird) {

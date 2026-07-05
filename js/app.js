@@ -33,6 +33,7 @@ const elements = {
 };
 
 let showingDaily = true;
+let loadedDailyKey = null;
 
 function hashString(value) {
   let hash = 0;
@@ -43,8 +44,26 @@ function hashString(value) {
   return Math.abs(hash);
 }
 
+function xmur3(value) {
+  let hash = 1779033703 ^ value.length;
+  for (let i = 0; i < value.length; i += 1) {
+    hash = Math.imul(hash ^ value.charCodeAt(i), 3432918353);
+    hash = (hash << 13) | (hash >>> 19);
+  }
+  return () => {
+    hash = Math.imul(hash ^ (hash >>> 16), 2246822507);
+    hash = Math.imul(hash ^ (hash >>> 13), 3266489909);
+    hash ^= hash >>> 16;
+    return hash >>> 0;
+  };
+}
+
 function getTodayKey() {
-  return new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 function formatDate(dateKey) {
@@ -58,7 +77,11 @@ function formatDate(dateKey) {
 }
 
 function getBirdIndex(seed) {
-  return hashString(seed) % TOTAL_BIRDS;
+  return xmur3(seed)() % TOTAL_BIRDS;
+}
+
+function getProbeStride(seed) {
+  return (xmur3(`${seed}-stride`)() % (TOTAL_BIRDS - 1)) + 1;
 }
 
 function getDailyBirdIndex(seed = getTodayKey()) {
@@ -227,11 +250,15 @@ function renderBird(bird, seed) {
   setViewState("content");
 }
 
-async function fetchBirdSummary(birdIndex) {
+async function fetchBirdSummary(birdIndex, seed = null) {
+  const stride = seed ? getProbeStride(seed) : 1;
+
   for (let attempt = 0; attempt < MAX_FETCH_ATTEMPTS; attempt += 1) {
-    const index = (birdIndex + attempt) % TOTAL_BIRDS;
+    const index = (birdIndex + attempt * stride) % TOTAL_BIRDS;
     const { page, offset } = getPageAndOffset(index);
-    const listResponse = await fetch(`${API_BASE}/birds/?page=${page}&page_size=${PAGE_SIZE}`);
+    const listResponse = await fetch(`${API_BASE}/birds/?page=${page}&page_size=${PAGE_SIZE}`, {
+      cache: "no-store",
+    });
     if (!listResponse.ok) {
       throw new Error("Failed to fetch bird list");
     }
@@ -242,7 +269,9 @@ async function fetchBirdSummary(birdIndex) {
       continue;
     }
 
-    const detailResponse = await fetch(`${API_BASE}/birds/${summary.slug}/`);
+    const detailResponse = await fetch(`${API_BASE}/birds/${summary.slug}/`, {
+      cache: "no-store",
+    });
     if (!detailResponse.ok) {
       continue;
     }
@@ -257,6 +286,18 @@ async function fetchBirdSummary(birdIndex) {
   throw new Error("No bird found with enough detail");
 }
 
+function updateTodayDate() {
+  elements.todayDate.textContent = formatDate(getTodayKey());
+}
+
+function checkForNewDay() {
+  const today = getTodayKey();
+  updateTodayDate();
+  if (showingDaily && loadedDailyKey && loadedDailyKey !== today) {
+    loadBird({ daily: true });
+  }
+}
+
 async function loadBird({ daily = true } = {}) {
   showingDaily = daily;
   setViewState("loading");
@@ -266,8 +307,11 @@ async function loadBird({ daily = true } = {}) {
   const birdIndex = daily ? getDailyBirdIndex(seed) : getRandomBirdIndex();
 
   try {
-    const bird = await fetchBirdSummary(birdIndex);
+    const bird = await fetchBirdSummary(birdIndex, daily ? seed : null);
     renderBird(bird, seed);
+    if (daily) {
+      loadedDailyKey = seed;
+    }
   } catch (error) {
     console.error(error);
     setViewState("error");
@@ -275,8 +319,12 @@ async function loadBird({ daily = true } = {}) {
 }
 
 function init() {
-  const today = getTodayKey();
-  elements.todayDate.textContent = formatDate(today);
+  updateTodayDate();
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      checkForNewDay();
+    }
+  });
   elements.randomBtn.addEventListener("click", () => loadBird({ daily: false }));
   elements.dailyBtn.addEventListener("click", () => loadBird({ daily: true }));
   elements.retryBtn.addEventListener("click", () => loadBird({ daily: showingDaily }));
